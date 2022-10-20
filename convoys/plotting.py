@@ -41,7 +41,7 @@ def plot_cohorts(G, B, T, t_max=None, model='kaplan-meier',
     See  :meth:`convoys.utils.get_arrays` which is handy for converting
     a Pandas dataframe into arrays `G`, `B`, `T`.
     '''
-
+    
     if model not in _models.keys():
         if not isinstance(model, convoys.multi.MultiModel):
             raise Exception('model incorrectly specified')
@@ -73,6 +73,7 @@ def plot_cohorts(G, B, T, t_max=None, model='kaplan-meier',
     t = numpy.linspace(0, t_max, 1000)
     _, y_max = ax.get_ylim()
     ax.set_prop_cycle(None)  # Reset to first color
+    conversion_dict={}
     for i, group in enumerate(specific_groups):
         j = groups.index(group)  # matching index of group
 
@@ -82,6 +83,9 @@ def plot_cohorts(G, B, T, t_max=None, model='kaplan-meier',
 
         if ci is not None:
             p_y, p_y_lo, p_y_hi = m.predict_ci(j, t, ci=ci).T
+            conversion_dict[group]=[ p_y_lo[-1],p_y_hi[-1]]
+            #print(p_y_lo[-1])
+            #print(p_y_hi[-1])
             merged_plot_ci_kwargs = {'alpha': 0.2}
             merged_plot_ci_kwargs.update(plot_ci_kwargs)
             p = ax.fill_between(t, 100. * p_y_lo, 100. * p_y_hi,
@@ -101,4 +105,4 @@ def plot_cohorts(G, B, T, t_max=None, model='kaplan-meier',
     ax.set_ylim([0, y_max])
     ax.set_ylabel('Conversion rate %')
     ax.grid(True)
-    return m
+    return m, conversion_dict
